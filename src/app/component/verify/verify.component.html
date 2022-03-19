@@ -1,0 +1,61 @@
+<div class="container-fluid p-10">
+  <div class="col-6 form-wrapper p-5 mt-4 mb-4 rounded border border-white bg-light text-dark">
+    <form [formGroup]="verifyForm" novalidate> 
+      <h4>Verification Form</h4>
+      <hr>
+      <div class="mb-4">
+        <label class="form-label">City</label>
+        <input type="text" class="form-control" formControlName="city" />
+        <div
+          class="form-text text-danger"
+          *ngIf="verifyForm.get('city')?.errors && verifyForm.get('city')?.hasError('required')"
+        >
+          City is required.
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Pan Number</label>
+        <input type="text" class="form-control" formControlName="panNumber"  />
+        <div class="form-text text-danger" *ngIf="verifyForm.get('panNumber')?.errors">
+          <div *ngIf="verifyForm.get('panNumber')?.hasError('required')">
+            Pan Number is required
+          </div>
+          <div *ngIf="verifyForm.get('panNumber')?.hasError('maxlength')">
+            Invalid pan number, maxlength should be 10.
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" required />
+        <div class="form-text text-danger">required and max length of 140</div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" required />
+        <div class="form-text text-danger">
+          required and valid Email format and max length of 255.
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Mobile</label>
+        <input type="text" class="form-control" required />
+        <div class="form-text text-danger">
+          required and valid mobile format and max length of 10. (Please show
+          prefix of static +91 to mobile field)
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">OTP</label>
+        <input type="text" class="form-control" required />
+        <div class="form-text text-danger">
+          required and valid NUMBER ONLY format and max length of 4.(Please keep
+          OTP field hidden till getOTP API is success
+        </div>
+      </div>
+      <div class="mb-4">
+        <a href="">Resend OTP</a>
+      </div>
+    </form>
+  </div>
+</div>
