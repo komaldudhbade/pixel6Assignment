@@ -1,3 +1,9 @@
 .form-wrapper{
     margin: auto;
 }
+.mix-form-control_otp {
+    width: 50%;
+}
+.mix-btn-resend_wrapper {
+    width: 40%;
+}
