@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 import { VerifyUserService } from 'src/app/services/verify-user.service';
 
 @Component({
@@ -13,18 +9,44 @@ import { VerifyUserService } from 'src/app/services/verify-user.service';
   styleUrls: ['./verify.component.css'],
 })
 export class VerifyComponent implements OnInit {
-  public mbNumber: string = '';
+  private _resendTime = 180000;
   public otpData: any = null;
+  public otpTime: string = '';
   public disabledResendOtp: boolean = true;
   public resendOtpClkCount: number = 0;
   public isFormView: boolean = true;
-  public verifyForm: FormGroup = new FormGroup({
-    city: new FormControl(''),
-    panNumber: new FormControl(''),
-    fullName: new FormControl(''),
-    email: new FormControl(''),
-    mobile: new FormControl(''),
-    otp: new FormControl(''),
+  public verifyForm: FormGroup = this._fb.group({
+    city: ['', Validators.required],
+    panNumber: [
+      '',
+      [
+        Validators.required,
+        Validators.maxLength(10),
+        Validators.pattern('[A-Z]{5}[0-9]{4}[A-Z]{1}'),
+      ],
+    ],
+    fullName: ['', [Validators.required, Validators.maxLength(140)]],
+    email: [
+      '',
+      [Validators.required, Validators.maxLength(255), Validators.email],
+    ],
+    mobile: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(10),
+        Validators.pattern(/^[6-9]\d{9}$/gi),
+      ],
+    ],
+    otp: [
+      '',
+      [
+        Validators.required,
+        Validators.maxLength(4),
+        Validators.pattern('[0-9][0-9][0-9][0-9]'),
+      ],
+    ],
   });
   constructor(
     private _fb: FormBuilder,
@@ -32,47 +54,17 @@ export class VerifyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.verifyForm = this._fb.group({
-      city: ['', Validators.required],
-      panNumber: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(10),
-          Validators.pattern('[A-Z]{5}[0-9]{4}[A-Z]{1}'),
-        ],
-      ],
-      fullName: ['', [Validators.required, Validators.maxLength(140)]],
-      email: [
-        '',
-        [Validators.required, Validators.maxLength(255), Validators.email],
-      ],
-      mobile: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(10),
-          Validators.maxLength(10),
-          Validators.pattern(/^[6-9]\d{9}$/gi),
-        ],
-      ],
-      otp: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(4),
-          Validators.pattern('[0-9][0-9][0-9][0-9]'),
-        ],
-      ],
+    this.verifyForm.controls['mobile'].valueChanges.subscribe((value: any) => {
+      this.getOtp(false);
+    });
+
+    this.verifyForm.statusChanges.subscribe((formStatus: string) => {
+      if (formStatus === 'VALID') {
+        this._verifyOTP();
+      }
     });
   }
 
-  private setResendOtpTimer(): void {
-    this.disabledResendOtp = true;
-    let time = setTimeout(() => {
-      this.disabledResendOtp = false;
-    }, 3000); //180000
-  }
   public getOtp(isResendOtpClicked: boolean): void {
     if (isResendOtpClicked) {
       this.resendOtpClkCount++;
@@ -85,7 +77,7 @@ export class VerifyComponent implements OnInit {
       !this.verifyForm.get('mobile')?.errors
     ) {
       this.disabledResendOtp = true;
-      this.setResendOtpTimer();
+      this.calTime(this._resendTime);
       this._verifyUserService
         .getOtp(this.verifyForm.value)
         .subscribe((data: any) => {
@@ -94,18 +86,32 @@ export class VerifyComponent implements OnInit {
     }
   }
 
-  public verifyOTP(): void {
-    if (this.verifyForm.valid) {
-      this._verifyUserService
-        .verifyOTP({
-          mobile: this.verifyForm.value.mobile,
-          otp: this.verifyForm.value.otp,
-        })
-        .subscribe((data: any) => {
-          if (data.status == 'Success') {
-            this.isFormView = false;
-          }
-        });
-    }
+  private calTime(myDuration: number): void {
+    let interval: any = setInterval(() => {
+      if (myDuration > 0) {
+        myDuration = myDuration - 1000;
+        this.otpTime =
+          '0' +
+          (Math.floor(myDuration / (1000 * 60)) % 60) +
+          ':' +
+          (Math.floor(myDuration / 1000) % 60);
+      } else {
+        clearInterval(interval);
+        this.disabledResendOtp = false;
+        this.otpTime = '';
+      }
+    }, 1000);
+  }
+  private _verifyOTP(): void {
+    this._verifyUserService
+      .verifyOTP({
+        mobile: this.verifyForm.value.mobile,
+        otp: this.verifyForm.value.otp,
+      })
+      .subscribe((data: any) => {
+        if (data.status == 'Success') {
+          this.isFormView = false;
+        }
+      });
   }
 }

@@ -1,9 +1,14 @@
-.form-wrapper{
-    margin: auto;
+.form-wrapper {
+  margin: auto;
 }
 .mix-form-control_otp {
-    width: 50%;
+  width: 50%;
 }
 .mix-btn-resend_wrapper {
-    width: 40%;
+  width: 30%;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.timeText {
+  font-size: 20px;
 }

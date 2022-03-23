@@ -106,13 +106,7 @@
           }"
         >
           <span class="input-group-text">+91</span>
-          <input
-            type="text"
-            class="form-control"
-            formControlName="mobile"
-            [(ngModel)]="mbNumber"
-            (change)="getOtp(false)"
-          />
+          <input type="text" class="form-control" formControlName="mobile" />
         </div>
         <div
           class="form-text text-danger"
@@ -141,8 +135,8 @@
             type="text"
             class="form-control mix-form-control_otp"
             formControlName="otp"
-            (change)="verifyOTP()"
           />
+
           <div
             class="mix-btn-resend_wrapper"
             *ngIf="otpData?.status == 'Success' && resendOtpClkCount <= 3"
@@ -155,6 +149,9 @@
             >
               Resend OTP
             </button>
+          </div>
+          <div class="timeText" *ngIf="otpTime">
+            <span class="badge bg-warning">{{ otpTime }}</span>
           </div>
         </div>
 
